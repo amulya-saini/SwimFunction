@@ -1,0 +1,39 @@
+name: swimfunction
+channels:
+  - anaconda
+  - conda-forge
+  - defaults
+  - r
+dependencies:
+  - python==3.7
+  - pytables
+  - conda-forge::ffmpeg
+  - pynndescent
+  - joblib
+  - line_profiler
+  - numba
+  - numpy
+  - pandas
+  - pytest
+  - pytest-timeout
+  - scikit-learn==1.0.2
+  - imbalanced-learn
+  - scipy==1.2.1
+  - statsmodels
+  - seaborn
+  - tqdm
+  - tzlocal
+  - umap-learn==0.4.2
+  - pip
+  - pdoc3
+  - pyopengl
+  - cython
+  - cffi
+  - pyfftw
+  - dtw-python
+  - pip:
+    - matplotlib
+    - scikit-image
+    - qtconsole
+    - git+https://github.com/zplab/freeimage-py
+    - git+https://github.com/zplab/zplib
