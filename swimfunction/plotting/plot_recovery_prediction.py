@@ -90,65 +90,6 @@ def plot_distance_by_compensation(
     ax.xaxis.offsetText.set_fontsize(8)
     mpl_helpers.shrink_lines_and_dots(ax, linewidth=lwidth, dotsize=msize)
 
-def plot_final_sorting(ax, outcomes_df: pandas.DataFrame, y_column: str):
-    ''' Plot final outcomes
-    '''
-    LIGHT_GOOD = 'paleturquoise'
-    LIGHT_BAD = 'bisque'
-    outcomes_df.loc[:, 'outcome'] = ['Good' \
-        if x else 'Poor' for x in outcomes_df.loc[:, 'will_recover_best']]
-    outcomes_df = outcomes_df.sort_values(
-        by=['will_recover_best', 'group'], ascending=[False, True])
-    outcomes_df.loc[outcomes_df['group'] == 'F', 'group'] = \
-        f'Females (n={(outcomes_df["group"] == "F").sum()})'
-    outcomes_df.loc[outcomes_df['group'] == 'M', 'group'] = \
-        f'Males (n={(outcomes_df["group"] == "M").sum()})'
-    seaborn.stripplot(
-        x='group',
-        y=y_column,
-        hue='outcome',
-        hue_order=('Poor', 'Good'),
-        data=outcomes_df,
-        dodge=True,
-        palette={'Male': 'black', 'Female': 'black', 'Good': 'black', 'Poor': 'black'},
-        size=2,
-        zorder=2,
-        ax=ax)
-    violins = seaborn.violinplot(
-        x='group',
-        y=y_column,
-        hue='outcome',
-        hue_order=('Poor', 'Good'),
-        data=outcomes_df,
-        inner=None,
-        linewidth=0,
-        dodge=True,
-        palette={'Male': '#aaaaff', 'Female': '#ffaaaa', 'Good': LIGHT_GOOD, 'Poor': LIGHT_BAD},
-        zorder=1,
-        ax=ax)
-
-    top = violins.viewLim.y1
-    outcomes_df['outcome_bool'] = outcomes_df['outcome'] == 'Good'
-    for group, textx in zip(outcomes_df['group'].unique(), (0, 1)):
-        _t, p = spstats.ttest_ind(
-            outcomes_df.loc[
-                (outcomes_df['group'] == group) \
-                & outcomes_df['outcome_bool'].values.flatten(), y_column],
-            outcomes_df.loc[
-                (outcomes_df['group'] == group) \
-                & ~outcomes_df['outcome_bool'].values.flatten(), y_column])
-        ax.hlines(y=top, xmin=textx-0.2, xmax=textx+0.2, color='black')
-        ax.text(
-            x=textx, y=top,
-            s=f'{group}\n{get_sig_str(p)} p = {p:.3f}',
-            fontsize=8)
-
-    ax.yaxis.set_major_formatter(mtick.PercentFormatter(1.0, symbol=None))
-    ax.set_xlabel('Groups by Ranked 1 & 2 WPI Average', fontsize=10)
-    ax.set_ylabel(sph.metric_to_axis_label(y_column), fontsize=10)
-    ax.yaxis.set_major_formatter(mtick.PercentFormatter(xmax=1, symbol=None))
-    mpl_helpers.shrink_lines_and_dots(ax, dotsize=2)
-
 def plot_final_sorting_multiple_y(outcomes_df: pandas.DataFrame):
     LIGHT_GOOD = 'paleturquoise'
     LIGHT_BAD = 'bisque'
@@ -183,19 +124,22 @@ def plot_final_sorting_multiple_y(outcomes_df: pandas.DataFrame):
 
     outcomes_df['outcome_bool'] = outcomes_df['outcome'] == 'Good'
     print('Testing whether outcome prediction was significant:')
+    good, bad = 0, 0
     for metric in STRUCTURAL_METRICS:
         group_selector = numpy.ones_like(outcomes_df.shape[0])
         bad = outcomes_df.loc[
             group_selector \
             & (outcomes_df['variable'] == metric) \
-            & outcomes_df['outcome_bool'].values.flatten(), 'value']
+            & ~outcomes_df['outcome_bool'].values.flatten(), 'value'].dropna()
         good = outcomes_df.loc[
             group_selector \
             & (outcomes_df['variable'] == metric)\
-            & ~outcomes_df['outcome_bool'].values.flatten(), 'value']
+            & outcomes_df['outcome_bool'].values.flatten(), 'value'].dropna()
         _t, p = spstats.ttest_ind(bad, good)
         sigtext = f'{metric}\n{get_sig_str(p)} p = {p:.4f}'
         print(sigtext)
+    print(len(bad), 'predicted to regenerate poorly')
+    print(len(good), 'predicted to regenerate well')
 
     mpl_helpers.same_axis_lims(
         violin.figure.get_axes() + strip.figure.get_axes(),
@@ -271,3 +215,7 @@ def plot_main_figure(savedir: pathlib.Path):
     mpl_helpers.save_fig(fig, savedir / 'outcome_prediction_early_ranks.png')
     plt.close(fig)
 
+if __name__ == '__main__':
+    FileLocations.parse_default_args()
+    plot_main_figure(FileLocations.mkdir_and_return(
+        FileLocations.get_plots_dir() / 'outcome_prediction'))
