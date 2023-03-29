@@ -1,6 +1,6 @@
 ''' Initializes a directory structure and
-imports videos with their DeepLabCut annotations
-into the directory structure.
+prompts the user to import pose annotation files
+and other data into the experiment directory structure.
 '''
 from swimfunction.global_config.config import config
 
@@ -62,8 +62,9 @@ def setup_directory(target_dir: pathlib.Path, suffixes: list, file_description, 
     ''' Sets up a directory structure given user input.
     '''
     files = find_files(target_dir, suffixes)
-    print(f'Found {len(files)} files in {target_dir.as_posix()}')
-    if prompt_yes(f'Would you like to import more {file_description} files?'):
+    if files:
+        print(f'Found {len(files)} {file_description} files already in {target_dir.as_posix()}')
+    if prompt_yes(f'Would you like to import {file_description} files?'):
         files = prompt_locate_files(suffixes, dirnames_to_ignore)
         if files:
             do_copy = prompt_yes('Would you like to copy the files? If no, will create symlink.')
@@ -73,13 +74,30 @@ def setup_structure():
     ''' Sets up the directory structure given user input.
     '''
     print('Experiment name: ', config.experiment_name)
-    print('Experiment location on disk: ', FileLocations.get_experiment_cache_root().as_posix())
-    if prompt_yes('Do want to import the original videos?'):
+    print(
+        'Experiment location on disk: ',
+        FileLocations.get_experiment_cache_root().as_posix())
+    if prompt_yes('Do you have pose annotation files to import?'):
         setup_directory(
-            FileLocations.get_original_videos_dir(),
-            ['.avi', '.mp4'],
-            'original video',
+            FileLocations.get_dlc_outputs_dir(),
+            ['.csv', '.h5'],
+            'pose annotation',
+            []
+        )
+    if prompt_yes('Do want to import videos matching the pose files? ',
+                  'Including the videos can help ensure posture annotation is accurate.'):
+        setup_directory(
+            FileLocations.get_normalized_videos_dir(),
+            ['.avi', '.mp4', '.ctlog', '.ctlog.gz'],
+            'video',
             dirnames_to_ignore=['median_frames', 'crop_tracked'])
+    if prompt_yes('Do you have precalculated scores in csv format to import?'):
+        setup_directory(
+            FileLocations.get_precalculated_metrics_dir(),
+            ['.csv'],
+            'precalculated score',
+            []
+        )
 
 if __name__ == '__main__':
     FileLocations.parse_default_args()

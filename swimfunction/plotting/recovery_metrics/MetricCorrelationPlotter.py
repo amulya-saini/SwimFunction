@@ -45,6 +45,7 @@ from swimfunction.data_access.fish_manager import DataManager as FDM
 from swimfunction.recovery_metrics.metric_correlation import cluster_metrics, rescale_metrics
 from swimfunction.plotting.constants import *
 from swimfunction.recovery_metrics.metric_analyzers.MetricCalculator import MetricCalculator
+from swimfunction.plotting import matplotlib_helpers as mpl_helpers
 from swimfunction import FileLocations
 
 
@@ -157,7 +158,7 @@ def plot_metric_clustermap(
     outpath = savedir / f'{group_str}{assay}wpi_metrics_clustermap_spearman.png'
     cor_df.to_csv(outpath.with_suffix('.csv'), mode='w')
     print('Saving', outpath)
-    cg.figure.savefig(outpath)
+    mpl_helpers.save_fig(cg.figure, outpath)
     plt.close(cg.figure)
 
 def match_group(names: numpy.ndarray, group):

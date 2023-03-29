@@ -9,7 +9,6 @@ import numpy
 from scipy.spatial.distance import squareform
 from sklearn.cluster import AffinityPropagation
 from tqdm import tqdm
-from umap import UMAP
 
 from swimfunction.data_access.fish_manager import DataManager as FDM
 from swimfunction.data_models.Fish import Fish
@@ -81,6 +80,9 @@ class EmbeddingStrategy:
 
 class UmapStrategy(EmbeddingStrategy):
     def __init__(self, n_neighbors: int, n_components: int):
+        # Since it takes a long time to load,
+        # we only import UMAP when absolutely necessary.
+        from umap import UMAP
         super().__init__(
             'umap',
             f'n{n_neighbors}_c{n_components}',

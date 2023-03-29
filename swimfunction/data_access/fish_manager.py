@@ -146,7 +146,7 @@ class _FishManager:
         fpaths = list(rootdir.glob('*.h5'))
         fds = [data_utils.parse_details_from_filename(f.name)[0] for f in fpaths]
         for fpath in rootdir.glob('*.csv'):
-            # Allow csv (for legacy code)
+            # Allow csv
             fd = data_utils.parse_details_from_filename(fpath.name)[0]
             if not numpy.any([fd == fd2 for fd2 in fds]):
                 fpaths.append(fpath)
