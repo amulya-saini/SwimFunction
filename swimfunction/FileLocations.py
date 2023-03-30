@@ -528,11 +528,11 @@ def parse_default_args(*add_arg_fns, unknown_args_throw_error=True):
     parser.add_argument('-r', '--cache_root',
                         help='Location to save cache files, \
                             will create files that do not yet exist',
-                        default=config.access_params.cache_root)
+                        default=None)
     parser.add_argument('-e', '--experiment_name',
                         help='Identifies internal cache directories.\
                             Experiment name, could be a date tag. ',
-                        default=config.experiment_name)
+                        default=None)
     parser.add_argument('-c', '--config_path', default=config.config_path.as_posix())
     parser.add_argument(
         '-t', '--worker_threads',
@@ -541,6 +541,10 @@ def parse_default_args(*add_arg_fns, unknown_args_throw_error=True):
     args = parser.parse_args() if unknown_args_throw_error else parser.parse_known_args()[0]
     config.clear()
     config.read(args.config_path)
+    if args.cache_root is None:
+        args.cache_root = config.access_params.cache_root
+    if args.experiment_name is None:
+        args.experiment_name = config.access_params.experiment_name
     access_params = CacheAccessParams(
         cache_root=args.cache_root,
         experiment_name=args.experiment_name
