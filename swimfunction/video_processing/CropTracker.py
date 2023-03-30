@@ -154,7 +154,8 @@ class CropTracker:
                     and l.crop_tracked_vfname is not None \
                         and not pathlib.Path(l.crop_tracked_vfname).exists()])
         if not should_crop_track:
-            raise RuntimeError(f'Cannot crop track {vfile}')
+            loggers.get_video_processing_logger(__name__).info(f'Cannot crop track {vfile}')
+            return
         if not video_writers or numpy.all([v is None for v in video_writers]):
             return
         if not self.quiet:
