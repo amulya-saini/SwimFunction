@@ -318,14 +318,8 @@ class _FishManager:
         return raw_coordinates, likelihoods
 
     @staticmethod
-    def _dlc_output_to_coordinates_likelihoods(fpath: pathlib.Path):
+    def _dlc_output_to_dataframe(fpath) -> pandas.DataFrame:
         ''' Reads an h5 or csv file, returns it as a pandas DataFrame.
-        If a CropTracker logfile is found, coordinates will be transposed
-        back to the original video space.
-
-        Note: If there are four header lines, it removes the top level header.
-            That way, the first column values are unique to individual animals in the DataFrame.
-            Only single animal annotation files are supported at this time.
         '''
         fpath = FileLocations.as_absolute_path(fpath)
         extension = fpath.name.split('.')[-1]
@@ -344,6 +338,19 @@ class _FishManager:
             # correspond to individuals in this file.
             # This script can only handle single-animal files, anyway.
             dlc_df = dlc_df[dlc_df.columns[0][0]]
+        return dlc_df
+
+    @staticmethod
+    def _dlc_output_to_coordinates_likelihoods(fpath: pathlib.Path):
+        ''' Reads an h5 or csv file, returns the raw coordiantes and likelihoods
+        If a CropTracker logfile is found, coordinates will be transposed
+        back to the original video space.
+
+        Note: If there are four header lines, it removes the top level header.
+            That way, the first column values are unique to individual animals in the DataFrame.
+            Only single animal annotation files are supported at this time.
+        '''
+        dlc_df = _FishManager._dlc_output_to_dataframe(fpath)
         raw_coordinates, likelihoods = _FishManager._dlc_to_coordinates_likelihoods_raw(
             dlc_df, _FishManager._get_individuals_from_dlc_df(dlc_df)[0]
         )
