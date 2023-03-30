@@ -212,7 +212,7 @@ At the end of the outcome prediction experiment, consider providing "outcome_pre
         F865,TRUE
         ...
 
-## Simple plug-and-play example
+## Basic usage
 
 1) Create a directory located at /path/to/experiment_name
 
