@@ -291,20 +291,14 @@ class PoseAnnotator(ris_widget.RisWidget):
             self.flipbook_pages[page_idx][0].refresh()
         self.annotator.update_fields()  # This must be called to update the GUI
 
-TESTING = config.getboolean('TEST', 'test')
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    if not TESTING:
-        parser.add_argument(
-            'annotation_root', help='Location of images to annotate.')
+    parser.add_argument(
+        'annotation_root', help='Location of images to annotate.')
     parser.add_argument(
         '-s', '--scorer', help='Name of person annotating the poses. Important: must be the same as the DeepLabCut scorer.')
     args = parser.parse_args()
-    if TESTING:
-        __annotation_root = '~/code/swimfunction/multianimal/train_images/variety/small'
-    else:
-        __annotation_root = args.annotation_root
+    __annotation_root = args.annotation_root
     pa = PoseAnnotator(
         pathlib.Path(__annotation_root).expanduser().resolve(),
         args.scorer)

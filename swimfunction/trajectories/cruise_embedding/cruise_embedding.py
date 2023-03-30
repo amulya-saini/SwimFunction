@@ -32,10 +32,6 @@ N_DIMS = 5
 # at the final assay will be omitted completely.
 SCOLIOSIS_THRESHOLD = 0.35
 
-if USE_TRACKING_EXPERIMENT_POSE_PCA:
-    PCA_RESULT = data_utils.get_tracking_experiment_pca()
-PCA_RESULT = data_utils.calculate_pca()
-
 npload = partial(numpy.load, allow_pickle=True)
 
 def get_logger() -> loggers.logging.Logger:
@@ -287,8 +283,11 @@ class EmbeddingInterface:
         ''' Similar to Mearns et al. 2019
         https://bitbucket.org/mpinbaierlab/mearns_et_al_2019
         '''
+        if USE_TRACKING_EXPERIMENT_POSE_PCA:
+            pca_result = data_utils.get_tracking_experiment_pca()
+        pca_result = data_utils.calculate_pca()
         episodes, episode_indices = PoseAccess.get_decomposed_assay_cruise_episodes(
-            fish, assay_label, PCA_RESULT, ndims=N_DIMS)
+            fish, assay_label, pca_result, ndims=N_DIMS)
         if not episodes:
             self.logger.info(f'{fish.name} {assay_label} : no episodes available.')
             return [], []

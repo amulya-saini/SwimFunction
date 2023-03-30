@@ -6,7 +6,6 @@ from collections import namedtuple
 from configparser import ConfigParser
 import matplotlib.patches as mpatches
 
-
 class CacheAccessParams:
     ''' Basic way to locate an experiment cache.
     Cache root is the location of the experiment folders,
@@ -40,6 +39,8 @@ class _FishConfigParserSingleton(ConfigParser):
     '''
     _config_fname = 'config.ini'
     config_path = pathlib.Path(__file__).expanduser().resolve().parent / _config_fname
+    test_config_path = pathlib.Path(__file__).expanduser().resolve().parent.parent.parent\
+        / 'tests' / 'test-config.ini'
 
     @staticmethod
     def split_string_list(list_string):
@@ -161,8 +162,14 @@ class _FishConfigParserSingleton(ConfigParser):
             for l, c in self.getfloatdict(labelsection, labelkey, colorssection, colorskey)
         ]
 
-    def read(self, *args, **kwargs):
-        super().read(*args, **kwargs)
+    def read(self, config_path, *args, **kwargs):
+        config_path = pathlib.Path(config_path)
+        while not config_path.exists() or config_path.name not in ['test-config.ini', 'config.ini']:
+            print(f'Could not find a global config (looks first at {config_path.as_posix()})')
+            config_path = pathlib.Path(input('Where is config.ini located?'))
+            if config_path.is_dir():
+                config_path = config_path / 'config.ini'
+        super().read(config_path, *args, **kwargs)
         self.DEFAULT_ACCESS_PARAMS = CacheAccessParams(
             cache_root=self.getpath('FOLDERS', 'cache_root'),
             experiment_name=self.get('EXPERIMENT DETAILS', 'experiment_name'))
@@ -170,7 +177,7 @@ class _FishConfigParserSingleton(ConfigParser):
 
 config = _FishConfigParserSingleton()
 
-config.read(config.config_path.as_posix())
+config.read(config.test_config_path) # By default, uses test config only.
 
 # ------- Examples -------
 # from swimfunction.global_config.config import config

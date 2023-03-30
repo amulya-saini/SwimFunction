@@ -47,8 +47,9 @@ def test_metrics_from_annotations_only():
     ''' Test get metrics from simple inputs: annotations only.
     Simple run-and-don't-crash test
     '''
-    # Copy annotation files into temporary folder
+    config.set('TEST', 'test', 'false') # Allow folder creation for this function
     config.set_access_params(CacheAccessParams.get_test_access())
+    # Copy annotation files into temporary folder
     annotation_fpaths = dlc_outputs_dir = FileLocations.get_dlc_outputs_dir().glob('*')
     experiment_name = f'from_annotations_only_{int(time.time())}'
     config.set_access_params(CacheAccessParams('/tmp', experiment_name))
@@ -58,6 +59,7 @@ def test_metrics_from_annotations_only():
     qc.qc_main()
     metrics.metrics_main(control_assay_for_rostral_compensation=TEST_NULL_ASSAY)
     plotting.plotting_main()
+    config.set('TEST', 'test', 'true')
 
 def test_qc_and_metrics():
     ''' Test get metrics from simple inputs: videos and annotations.
@@ -66,27 +68,3 @@ def test_qc_and_metrics():
     qc.qc_main()
     metrics.metrics_main(control_assay_for_rostral_compensation=TEST_NULL_ASSAY)
     plotting.plotting_main()
-
-if __name__ == '__main__':
-    __setup()
-    test_qc_and_metrics()
-    # test_metrics_from_annotations_only()
-
-''' In this sequence, main fails.
-BUT it doesn't fail if you run them individually,
-only if they're all run together.
-
-tests/test_CropTracker.py ...                                                                                                                                      [  5%]
-tests/test_FileLocations.py .                                                                                                                                      [  6%]
-tests/test_PoseAccess.py ..                                                                                                                                        [ 10%]
-tests/test_PoseCleaners.py .                                                                                                                                       [ 11%]
-tests/test_PoseFilters.py .....                                                                                                                                    [ 20%]
-tests/test_RestPredictor.py ...                                                                                                                                    [ 25%]
-tests/test_WorkerSwarm.py ......                                                                                                                                   [ 35%]
-tests/test_behavior_handling.py .......                                                                                                                            [ 46%]
-tests/test_data_models.py ....                                                                                                                                     [ 53%]
-tests/test_data_utils.py ..........                                                                                                                                [ 70%]
-tests/test_dependencies.py ...                                                                                                                                     [ 75%]
-tests/test_fish_manager.py ..                                                                                                                                      [ 78%]
-tests/test_main.py F.
-'''

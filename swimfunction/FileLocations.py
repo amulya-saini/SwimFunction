@@ -17,8 +17,6 @@ from swimfunction.global_config.config import config, CacheAccessParams
 from swimfunction.video_processing import fp_ffmpeg
 from swimfunction import progress
 
-TESTING_MODE = config.getboolean('TEST', 'test')
-
 def as_absolute_path(location) -> pathlib.Path:
     ''' Get the location as a Path expanded and resolved.
     '''
@@ -40,7 +38,7 @@ def mkdir_and_return(path) -> pathlib.Path:
     then create the directory if necessary and return the result.
     '''
     path = as_absolute_path(path)
-    if not TESTING_MODE:
+    if not config.getboolean('TEST', 'test'):
         path.mkdir(parents=True, exist_ok=True)
     return path
 

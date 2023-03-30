@@ -25,8 +25,6 @@ def get_logger() -> loggers.logging.Logger:
     '''
     return loggers.get_metric_calculation_logger(__name__)
 
-TESTING = config.getboolean('TEST', 'test')
-
 FPS = config.getint('VIDEO', 'fps')
 BEHAVIORS = config.getnamedtuple('BEHAVIORS', 'names', 'BEHAVIORS', 'symbols')
 FLOW_SPEEDS = (
@@ -537,7 +535,7 @@ class CruiseWaveformCalculator:
             key = self.h5featureskey
             prior_data = pandas.DataFrame()
             outpath = self._choose_cache_file(assay)
-            if outpath.exists() and not TESTING:
+            if outpath.exists():
                 try:
                     prior_data = pandas.read_hdf(outpath, key=key)
                 except KeyError:
@@ -554,7 +552,7 @@ class CruiseWaveformCalculator:
                 return CruiseWaveformCalculator.df_summaries.get_summary_df(
                     self.annotation_type, assay_key, h5_flows_key)
             result_df = None
-            if outpath.exists() and not TESTING:
+            if outpath.exists():
                 try:
                     result_df = pandas.read_hdf(outpath, key=h5_flows_key)
                 except KeyError:
@@ -570,7 +568,7 @@ class CruiseWaveformCalculator:
         '''
         with AccessContext(experiment_name=self.experiment):
             outpath = self._choose_cache_file(assay)
-            if outpath is not None and not TESTING:
+            if outpath is not None:
                 featuresdf.to_hdf(outpath, key=self.h5featureskey, mode='w')
 
     def _write_summary_to_cache(self, summarydf: pandas.DataFrame, summary_flows, assay):
@@ -579,7 +577,7 @@ class CruiseWaveformCalculator:
         with AccessContext(experiment_name=self.experiment):
             get_logger().info('Writing summary to cache...')
             outpath = self._choose_cache_file(assay)
-            if outpath is not None and not TESTING:
+            if outpath is not None:
                 assay_key = self.summary_df_assay_key(assay)
                 h5_flows_key = self.h5summarykey(summary_flows)
                 summarydf.to_hdf(outpath, key=h5_flows_key, mode='a')
