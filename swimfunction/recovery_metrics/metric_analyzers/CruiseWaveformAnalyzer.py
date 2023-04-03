@@ -47,13 +47,14 @@ class CruiseWaveformAnalyzer(AbstractMetricAnalyzer):
     '''
     PRECALCULATION_LOCK = threading.Lock()
     __slots__ = ['control_series']
-    def __init__(self):
+    def __init__(self, rostral_compensation_only=True):
         super().__init__()
         self.control_series = None
         self.keys_to_printable = {
-            'body_frequency': 'Body Cruise Frequency',
             'rostral_compensation': 'Rostral Compensation'
         }
+        if not rostral_compensation_only:
+            self.keys_to_printable['body_frequency'] = 'Body Cruise Frequency'
 
     def set_control(
             self,
@@ -138,8 +139,9 @@ class CruiseWaveformAnalyzer(AbstractMetricAnalyzer):
         rv['rostral_compensation'] = self._get_deviation_from_control(
             self._select_from_series(series, 'amplitudes', list(range(5))),
             numpy.nanmax)
-        rv['body_frequency'] = self._select_from_series(
-            series,
-            'frequencies',
-            list(range(2, 9))).mean(skipna=True)
+        if 'body_frequency' in rv:
+            rv['body_frequency'] = self._select_from_series(
+                series,
+                'frequencies',
+                list(range(2, 9))).mean(skipna=True)
         return rv

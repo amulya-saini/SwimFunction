@@ -70,3 +70,10 @@ def test_qc_and_metrics():
     metrics.metrics_main(control_assay_for_rostral_compensation=TEST_NULL_ASSAY)
     plotting.plotting_main()
     config.set('TEST', 'test', 'true')
+
+def test_rostral_compensation_only():
+    config.set('TEST', 'test', 'false') # Allow folder creation for this function
+    qc.qc_main()
+    metrics.rostral_compensation_only(
+        control_assay_for_rostral_compensation=TEST_NULL_ASSAY)
+    config.set('TEST', 'test', 'true')

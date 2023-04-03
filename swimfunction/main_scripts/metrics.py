@@ -111,7 +111,7 @@ def get_behavior_predictors() -> PREDICTORS:
     and if the cruise predictor has not yet been trained, train it.
     '''
     cruise_predictor = UmapClassifier()
-    rest_predictor = RestPredictor(PREDICT_FEATURE)
+    rest_predictor = RestPredictor()
     cruise_predictor.load_models()
     if cruise_predictor.umap_mapper is None:
         get_logger().info(' '.join([
@@ -174,7 +174,7 @@ def calculate_waveform_stats_as_required():
     for assay in FDM.get_available_assay_labels():
         waveform_calculator.get_waveform_stats(None, assay, None, None)
 
-def calculate_metrics_as_required(control_assay_for_rostral_compensation):
+def calculate_metrics_as_required(analyzer_classes: dict, control_assay_for_rostral_compensation):
     ''' Calculate all metrics that have not yet been calculated.
     '''
     header('Calculating metrics as required')
@@ -195,17 +195,17 @@ def calculate_metrics_as_required(control_assay_for_rostral_compensation):
             get_logger().error(e)
             get_logger().error(traceback.format_exc())
 
-    ANALYZER_CLASSES['waveforms'].set_control(assay=control_assay_for_rostral_compensation)
+    analyzer_classes['waveforms'].set_control(assay=control_assay_for_rostral_compensation)
 
     swarmable_analyzers_dict = {
-        a: v for a, v in ANALYZER_CLASSES.items()\
+        a: v for a, v in analyzer_classes.items()\
             if v.__class__ in SWARMABLE_CLASSES}
     nonswarmable_a_d = {
-        a: v for a, v in ANALYZER_CLASSES.items()\
+        a: v for a, v in analyzer_classes.items()\
             if v.__class__ not in SWARMABLE_CLASSES}
 
     total = sum([
-        len(ANALYZER_CLASSES) * len(FDM.get_available_assay_labels(n)) \
+        len(analyzer_classes) * len(FDM.get_available_assay_labels(n)) \
         for n in FDM.get_available_fish_names()])
 
     with progress.Progress(total):
@@ -230,18 +230,36 @@ def predict_outcomes():
             'example_fish_name_at_final_assay,True'
             'YOU MUST MAKE THIS FILE YOURSELF ACCORDING TO INSTRUCTIONS IN THE README FILE\n')
 
+def default_setup():
+    ''' Import all data into a useable structure.
+    Calculate necessary intermediate values (behaviors, waveforms).
+    '''
+    populate_data_storage_structures()
+    predict_behaviors_as_required()
+    calculate_waveform_stats_as_required()
+
+def rostral_compensation_only(control_assay_for_rostral_compensation=PREINJURY_ASSAY):
+    ''' Calculate only rostral compensation. No other recovery metrics.
+    '''
+    get_logger().info('The only metric that will be calculated is rostral compensation.')
+    get_logger().info(
+        'Find csv outputs in %s',
+        FileLocations.get_csv_output_dir().as_posix())
+    default_setup()
+    # Calculate all metrics
+    calculate_metrics_as_required(
+        {'waveforms': CruiseWaveformAnalyzer(rostral_compensation_only=True)},
+        control_assay_for_rostral_compensation)
+
 def metrics_main(control_assay_for_rostral_compensation=PREINJURY_ASSAY):
     ''' Calculate metrics
     '''
     get_logger().info(
         'Find csv outputs in %s',
         FileLocations.get_csv_output_dir().as_posix())
-    # Import all data into a useable structure.
-    populate_data_storage_structures()
-    predict_behaviors_as_required()
-    calculate_waveform_stats_as_required()
+    default_setup()
     # Calculate all metrics
-    calculate_metrics_as_required(control_assay_for_rostral_compensation)
+    calculate_metrics_as_required(ANALYZER_CLASSES, control_assay_for_rostral_compensation)
     if fish_identities_were_tracked_in_the_experiment():
         predict_outcomes()
 

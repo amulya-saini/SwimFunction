@@ -15,13 +15,15 @@ from swimfunction.data_access import PoseAccess
 from swimfunction.recovery_metrics.metric_analyzers.AbstractMetricAnalyzer \
     import AbstractMetricAnalyzer
 from swimfunction.recovery_metrics.metric_analyzers.CruiseWaveformCalculator \
-    import FPS, CruiseWaveformCalculator, get_alternating_argextrema, \
-    argpeaks_to_periods, peaks_to_amplitudes2d
+    import CruiseWaveformCalculator
+from swimfunction.recovery_metrics.metric_analyzers.series_to_waveform_stats \
+    import get_alternating_argextrema, argpeaks_to_periods, peaks_to_amplitudes2d
 from swimfunction.pose_processing import pose_filters
 from swimfunction.recovery_metrics.metric_analyzers.swim_capacity_calculations \
     import distance_swum, AssayProperties
 from swimfunction.global_config.config import config
 
+FPS = config.getint('VIDEO', 'fps')
 BEHAVIORS = config.getnamedtuple('BEHAVIORS', 'names', 'BEHAVIORS', 'symbols')
 ANY_FLOW = (
     config.getint('FLOW', 'none'),

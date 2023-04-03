@@ -3,6 +3,7 @@
 If __main__, then converts csv files to cache and calculates pose representations.
 '''
 
+from typing import List
 from collections import defaultdict
 import functools
 import pathlib
@@ -308,14 +309,37 @@ class _FishManager:
         idx = pandas.IndexSlice
         num_points = dlc_df.shape[1] // 3
         raw_coordinates = numpy.empty((dlc_df.values.shape[0], num_points, 2))
-        raw_coordinates[:, :, 0] = numpy.array(
+        raw_coordinates[:, :, 0] = numpy.asarray(
             dlc_df.loc[:, idx[individual, :, 'x']].values.tolist())
-        raw_coordinates[:, :, 1] = numpy.array(
+        raw_coordinates[:, :, 1] = numpy.asarray(
             dlc_df.loc[:, idx[individual, :, 'y']].values.tolist())
-        likelihoods = numpy.array(
+        likelihoods = numpy.asarray(
             dlc_df.loc[:, idx[:, :, ['likelihood']]].values.tolist()
         ) if has_likelihoods else None
         return raw_coordinates, likelihoods
+
+    @staticmethod
+    def _choose_csv_header_arr(fpath: pathlib.Path) -> List[int]:
+        ''' Gets the number of header lines in the csv file.
+        The final header must begin with the word "coords".
+        The resulting array is to be passed into the
+        "header" argument of pandas.read_csv
+
+        There can only be at most 4 header lines.
+        '''
+        found_final_line = False
+        header_arr = []
+        with open(fpath, 'rt') as fh:
+            for i, line in enumerate(fh):
+                header_arr.append(i)
+                if len(line) > 6 and line[:6] == 'coords':
+                    found_final_line = True
+                    break
+                if i > 3:
+                    break
+        if not found_final_line:
+            header_arr = None
+        return header_arr
 
     @staticmethod
     def _dlc_output_to_dataframe(fpath) -> pandas.DataFrame:
@@ -325,7 +349,8 @@ class _FishManager:
         extension = fpath.name.split('.')[-1]
         dlc_df = pandas.DataFrame()
         if extension == 'csv':
-            dlc_df = pandas.read_csv(fpath.as_posix(), header=[0, 1, 2], index_col=[0])
+            header = _FishManager._choose_csv_header_arr(fpath)
+            dlc_df = pandas.read_csv(fpath.as_posix(), header=header, index_col=[0])
         elif extension == 'h5':
             store = pandas.HDFStore(fpath.as_posix(), mode='r')
             dlc_df = pandas.read_hdf(store)

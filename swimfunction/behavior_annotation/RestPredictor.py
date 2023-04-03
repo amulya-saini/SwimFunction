@@ -15,10 +15,11 @@ from swimfunction.global_config.config import config
 
 # This value was the output of the train_models function, stored for prediction.
 REST_EPSILON = config.getfloat('BEHAVIOR_ANNOTATION', 'rest_epsilon')
+PREDICT_FEATURE = config.get('MACHINE_LEARNING', 'predict_feature')
 
 class RestPredictor(AbstractBehaviorPredictor):
 
-    def __init__(self, feature: str, rest_epsilon: float = REST_EPSILON):
+    def __init__(self, feature: str=PREDICT_FEATURE, rest_epsilon: float = REST_EPSILON):
         '''
         Parameters
         ----------
@@ -282,18 +283,3 @@ class RestPredictor(AbstractBehaviorPredictor):
         if verbose:
             print(f'Found {mask.sum()} rests')
         return mask
-
-if __name__ == '__main__':
-    PERCENT_TEST = 25
-    PREDICT_FEATURE = config.get('MACHINE_LEARNING', 'predict_feature')
-    pred = RestPredictor(PREDICT_FEATURE)
-    from swimfunction.data_access import PoseAccess
-    from swimfunction.pose_processing.pose_filters import BASIC_FILTERS
-    # pred.find_rests_angles(PoseAccess.get_feature(['M16'], [-1], 'smoothed_angles', BASIC_FILTERS, keep_shape=True).features[0])
-    pred.train_models_smarter(
-        PREDICT_FEATURE,
-        labels_to_predict=[BEHAVIORS.rest],
-        percent_test=PERCENT_TEST,
-        use_cached_training_data=True,
-        save=False,
-        do_plot=True)

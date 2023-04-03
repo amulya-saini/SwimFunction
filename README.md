@@ -4,6 +4,8 @@ This repository preprocesses videos, calculates recovery metrics, and predicts r
 
 Jensen et al., Functional Trajectories during Innate Spinal Cord Repair. bioRxiv doi: [https://doi.org/10.1101/2023.01.31.526502](https://doi.org/10.1101/2023.01.31.526502)
 
+At the end of this document, there are two suggested ways to run the code: calculating and plotting everything, and calculating only rostral compensation with pose and behavior quality control plots only.
+
 ## Installation
 
 This software has been used on Linux and Mac (macOS Catalina). We have not tested it on Windows.
@@ -214,6 +216,8 @@ At the end of the outcome prediction experiment, consider providing "outcome_pre
 
 ## Basic usage
 
+### Calculate and plot everything
+
 1) Create a directory located at /path/to/experiment_name
 
 2) Copy `config-template.ini` to `config.ini` and update the following:
@@ -232,3 +236,7 @@ At the end of the outcome prediction experiment, consider providing "outcome_pre
         >> python calculate_and_plot_everything.py -r /path/to -e experiment_name -c /path/to/config.ini
 
 Some functions allow parallel processing, and you can designate the number of processes you allow to run using the `-t {integer}` flag.
+
+### Calculate rostral compensation only, plot pose and behavior QC only
+
+In our paper, we introduced a gait quality score called "rostral compensation" which is highly correlated with neurological wellbeing. Because we want this score to be as accessible as possible, we provide a script called "calculate_rostral_compensation.py" which imports pose files, predicts behaviors, performs standard quality control on pose and behavior, and calculates rostral compensation scores. It does not calculate any other functional measurements and does not incorporate any precalculated scores. To use this script, follow the same steps in the section above, but instead of running "calculate_and_plot_everything.py" run "calculate_rostral_compensation.py" which has exactly the same commandline usage.
