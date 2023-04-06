@@ -40,7 +40,7 @@ def _select_bridging(df: pandas.DataFrame, bridging_selection):
     if new_index_keys:
         df = df.set_index(new_index_keys)
     for n in all_fish.intersection(df.index.get_level_values('fish').unique()):
-        b = FDM.get_final_percent_briding(n, missing_val=None)
+        b = FDM.get_final_percent_bridging(n, missing_val=None)
         if b is None:
             continue
         elif b <= LOW_BRIDGING_THRESHOLD:

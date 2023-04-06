@@ -648,7 +648,7 @@ class _FishManager:
         ))
         return max(scores) if scores else None
 
-    def get_final_percent_briding(self, fish_name, missing_val=None):
+    def get_final_percent_bridging(self, fish_name, missing_val=None):
         ''' Get percent bridging for the last assay of the fish.
         Requires "glial_bridging.csv" file to exist.
         '''

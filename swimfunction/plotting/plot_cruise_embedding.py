@@ -85,13 +85,13 @@ class EmbeddingPlotter:
         # names with bridging
         names = [
             n for n in self.interface.fish_names
-            if FDM.get_final_percent_briding(n, missing_val=None) is not None]
+            if FDM.get_final_percent_bridging(n, missing_val=None) is not None]
         # names in group
         if group is not None:
             names = [n for n in names if data_utils.fish_name_to_group(n) == group]
         # names separated by bridging
-        low_names = [n for n in names if FDM.get_final_percent_briding(n, missing_val=0) <= 0.2]
-        high_names = [n for n in names if FDM.get_final_percent_briding(n, missing_val=0) > 0.2]
+        low_names = [n for n in names if FDM.get_final_percent_bridging(n, missing_val=0) <= 0.2]
+        high_names = [n for n in names if FDM.get_final_percent_bridging(n, missing_val=0) > 0.2]
 
         for wpi in tqdm(WPI_OPTIONS):
             label = f'{wpi}wpi' if wpi > 0 else 'control'
@@ -148,13 +148,13 @@ class EmbeddingPlotter:
         # names with bridging
         names = [
             n for n in self.interface.fish_names
-            if FDM.get_final_percent_briding(n, missing_val=None) is not None]
+            if FDM.get_final_percent_bridging(n, missing_val=None) is not None]
         # names in group
         if group is not None:
             names = [n for n in names if data_utils.fish_name_to_group(n) == group]
         # names separated by bridging
-        low_names = [n for n in names if FDM.get_final_percent_briding(n, missing_val=0) <= 0.2]
-        high_names = [n for n in names if FDM.get_final_percent_briding(n, missing_val=0) > 0.2]
+        low_names = [n for n in names if FDM.get_final_percent_bridging(n, missing_val=0) <= 0.2]
+        high_names = [n for n in names if FDM.get_final_percent_bridging(n, missing_val=0) > 0.2]
 
         best_means, best_stds = self._plot_weekly_kde_return_means_stds(high_names, bottoms[:3])
         worst_means, worst_stds = self._plot_weekly_kde_return_means_stds(low_names, bottoms[3:])
