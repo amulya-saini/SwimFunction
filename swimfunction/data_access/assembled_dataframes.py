@@ -26,7 +26,7 @@ def _select_bridging(df: pandas.DataFrame, bridging_selection):
     if df is None or not df.size or bridging_selection == BRIDGING_SELECTION.any:
         return df
     full_metric_df = MetricLogger.metric_dataframe
-    if 'glial_briding' not in full_metric_df.columns \
+    if 'glial_bridging' not in full_metric_df.columns \
             or not full_metric_df['glial_bridging'].dropna().size:
         LOGGER.critical('Glial bridging is not available for these fish.')
     all_fish = set(FDM.get_available_fish_names())
