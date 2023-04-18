@@ -60,6 +60,8 @@ Filenames should not have whitespace. All video and pose annotation files must f
 
         {anything here}_{assay label}_{fish labels separated by underscores}.{extension}
 
+The {anything here} portion is where you can put miscellaneous information, like the fish stock number, experiment name, or researcher name. As long as the information does not match {assay label} as described below, any letters, numbers, or underscores are acceptable.
+
 Assay label must match
 
         {number}wpi
@@ -70,9 +72,17 @@ Assay label must match
 
 Fish labels must be in the format
 
-        {fish_group_string}{fish_number}{L or R (optional)}
+        {fish group letters}{fish number}{L or R (optional)}
+
+or, in regex, a fish label matches the expression below
+
+        ([A-Za-z]+)([0-9]+)([LRlr]{0,1})
+
+where the first captured element is the group (think of it as a surname, like "Heterozygote"), the second is the fish number (think of it as a name, like "42"), and the optional third part is the side of the video where the fish is visible (left or right).
 
 Internally, all characters are uppercase and all assay labels are handled as integers. Preinjury and pretreatment are converted to -1. Posttreatment is defined as 1. The "L or R" optional part is to designate whether the fish was on the left (L) or right (R) side of the original video.
+
+Common troubleshooting: make sure nothing comes after the last fish name before the extension. Make sure group labels are letters only (numbers will be interpreted as fish names). Make sure all fish are listed in the file name.
 
 ### Exception
 
