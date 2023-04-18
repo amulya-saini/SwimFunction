@@ -375,8 +375,8 @@ def get_all_training_meta_labels(annotations_root=None):
     meta_label_arrs = []
     annotation_files = FileLocations.get_all_behavior_annotations_files(annotations_root)
     for fname in annotation_files:
-        name, assay_label = pathlib.Path(fname).name\
-            .split('.')[0].split('_')[1:]
+        fd = data_utils.parse_details_from_filename(fname)[0]
+        name, assay_label = fd.name, fd.assay_label
         behaviors, annotator_arr = load_behavior_cache(fname)
         behaviors = numpy.asarray(behaviors)
         valid_loc = numpy.where(behaviors != BEHAVIORS.unknown)
