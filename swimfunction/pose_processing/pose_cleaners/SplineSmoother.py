@@ -1,5 +1,6 @@
 import numpy
 from zplib.curve import interpolate
+from tqdm import tqdm
 
 from swimfunction.pose_processing.pose_cleaners.AbstractPoseCleaner import AbstractPoseCleaner
 from swimfunction.pose_annotation import get_skeleton_pose
@@ -101,7 +102,7 @@ class SplineSmootherNoVideoAvailable(AbstractPoseCleaner):
                         axis=1))))
             # Resample every point smoother based on this
             # fish's mean_head_tail_dist (which is at most MAX_EXPECTED_FISH_LENGTH)
-            for i in range(poses.shape[0]):
+            for i in tqdm(range(poses.shape[0])):
                 rv[i, :, :] = resample_pose_smoother_keep_not_extreme(
                     poses[i, :, :], mean_head_tail_dist)
         else:
@@ -145,7 +146,7 @@ class SplineSmootherVideoAvailable(AbstractPoseCleaner):
                 poses[where_best, 0, :] - poses[where_best, -1, :], axis=1))))
         # Resample every point smoother based on this
         # fish's mean_head_tail_dist (which is at most MAX_EXPECTED_FISH_LENGTH)
-        for i in range(poses.shape[0]):
+        for i in tqdm(range(poses.shape[0])):
             smoothed[i, :, :] = resample_pose_smoother_skeleton_fix(
                 poses[i, :, :],
                 fish_name, assay_label, i, likelihood_mins[i], mean_head_tail_dist)
