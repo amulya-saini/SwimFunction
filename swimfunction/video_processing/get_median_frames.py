@@ -104,6 +104,7 @@ def write_all_median_frames_for_videos(
 def write_all_median_frames(video_root: pathlib.Path):
     ''' Write a median (background) frame for every video
     recursively found in the root directory.
+    Does not check video name formatting.
     '''
     logger = loggers.get_video_processing_logger(__name__)
     output_dir = FileLocations.get_median_frames_dir(video_root)

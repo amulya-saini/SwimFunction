@@ -37,7 +37,8 @@ def annotate_all_videos(videos_root, output_dir):
     '''
     videos_root = pathlib.Path(videos_root)
     output_dir = pathlib.Path(output_dir)
-    video_files = list(FileLocations.find_video_files(root_path=videos_root))
+    video_files = FileLocations.filter_out_unparseable_files(
+        FileLocations.find_video_files(root_path=videos_root))
     for vfile in video_files:
         progress.init(len(video_files))
         for i, fname in enumerate(video_files):

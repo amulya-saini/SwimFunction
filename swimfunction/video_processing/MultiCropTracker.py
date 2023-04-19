@@ -293,7 +293,8 @@ def run_multi_crop_tracker(video_root=None, outdir=None, num_fish=None, max_fram
     # Do not crop track videos in the output directory
     videos = list(filter(
         lambda path: pathlib.Path(path).expanduser().resolve().parent != output_dir,
-        FileLocations.find_video_files(videos_root)))
+        FileLocations.filter_out_unparseable_files(
+            FileLocations.find_video_files(videos_root))))
     print('Tracking...')
     print(f'Saving cropped videos to {output_dir.as_posix()}')
     for i, vfile in enumerate(videos):

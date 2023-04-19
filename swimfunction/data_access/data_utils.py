@@ -43,7 +43,7 @@ def fish_name_to_group_num_side(piece: str) -> GroupNumSide:
     Note: will be returned in upper-case.
     '''
     piece = piece.upper()
-    gns = None
+    gns = GroupNumSide(None, None, None)
     m = re.match(r'([A-Z]+)(\d+)([LR]?)', piece)
     if m:
         gns = GroupNumSide(
@@ -58,7 +58,7 @@ def fish_name_to_group(fish_name: str) -> str:
     Note: will be returned in upper-case.
     '''
     gns = fish_name_to_group_num_side(fish_name)
-    if gns is None:
+    if gns is gns.group is None or gns.num is None:
         return None
     return gns.group
 
@@ -110,9 +110,15 @@ def parse_details_from_filename(fname) -> List[FishDetails]:
     for piece in basename.split('_'):
         if assay_label is None:
             assay_label = _match_assay_label(piece)
-        else:
+        elif assay_label is not None:
             gns = fish_name_to_group_num_side(piece)
             if gns:
+                if gns.group is None or gns.num is None:
+                    # An invalid name was encountered.
+                    # Don't trust the parsing.
+                    # The user likely did not check their filenames.
+                    list_of_details = []
+                    break
                 fish_name = f'{gns.group}{gns.num}'
                 list_of_details.append(FishDetails(name=fish_name, side=gns.side, assay_label=assay_label))
     return list_of_details

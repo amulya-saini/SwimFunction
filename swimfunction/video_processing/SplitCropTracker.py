@@ -349,7 +349,8 @@ def split_crop_track(
         if video_root is None else pathlib.Path(video_root)
     output_dir = FileLocations.get_normalized_videos_dir()\
         if outdir is None else pathlib.Path(outdir)
-    videos = list(FileLocations.find_video_files(videos_root, ignores=['crop_tracked']))
+    videos = FileLocations.filter_out_unparseable_files(
+        FileLocations.find_video_files(videos_root, ignores=['crop_tracked']))
     logger.debug('Tracking...')
     logger.info('Saving cropped videos to %s', output_dir.as_posix())
     tracked = []

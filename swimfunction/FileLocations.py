@@ -384,6 +384,15 @@ def find_video_files(root_path=None, ignores: list=None):
         root_path = get_normalized_videos_dir()
     return find_files_by_suffix(root_path, '.avi', ignores=ignores + VIDEO_FNAME_IGNORES)
 
+def filename_has_parseable_fish(fpath: pathlib.Path) -> bool:
+    fds = parse_details_from_filename(fpath)
+    return fds is not None and fds
+
+def filter_out_unparseable_files(fpaths: List[pathlib.Path]) -> List[pathlib.Path]:
+    ''' Removes any file that does not have a parseable assay label and fish
+    '''
+    return list(filter(filename_has_parseable_fish, fpaths))
+
 class _Video_Map_Singleton:
     ''' Stores the location of videos in a handy dict.
     '''
