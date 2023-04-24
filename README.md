@@ -32,6 +32,8 @@ Make sure python is installed and the command `conda` is accessible. Either [Ana
 
 Each time you use this package, be sure to activate the virtual environment: `conda activate swimfunction`
 
+If you wish to make cruise sonification videos (see the two videos in `swimfunction/example_figures`), install the necessary dependencies listed at the top of the associated script `SwimFunction/plotting/cruise_sonification.py`
+
 ## Preparing the data
 
 Take videos according to the protocol described in
@@ -49,6 +51,8 @@ For all frames, calculate eleven keypoints on the fish's dorsal centerline: ten 
         coords,x,y,likelihood,x,...,likelihood,x,y,likelihood
         0,25,132,1.0,32,...,1.0,38,145,1.0
         1,34,137,1.0,24,...,1.0,34,140,1.0
+
+![Fish keypoint diagram](https://github.com/MokalledLab/SwimFunction/blob/main/example_figures/keypoint_diagram.png?raw=true)
 
 Body parts names do not actually matter as long as the columns are sorted from rostral tip (left) to caudal fin tip (right). The code will also accept files without the caudal fin tip (only ten keypoints), but in that case tail beat frequency and Strouhal number would be inferred from the base of the caudal fin instead, which could be unreliable.
 
