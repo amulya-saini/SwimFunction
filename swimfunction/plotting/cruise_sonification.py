@@ -160,6 +160,9 @@ def get_waveform_stats_from_series_with_argpeaks(
         ap = series_to_waveform_stats.remove_false_waves(
             series_to_waveform_stats.get_alternating_argextrema(
                 series[:, d]).astype(int), series[:, d])
+        # Ensure the first extrema is greater than the second (peak, not trough)
+        if series[ap[0], d] < series[ap[1], d]:
+            ap = ap[1:]
         if len(ap) < 3:
             continue
         argpeaks[d] = ap[1:ap.size - 1:2]
@@ -230,7 +233,7 @@ class ControlComparer:
             1)
 
 class CruiseMidiMaker:
-    def __init__(self, fish_name, assay_label, start_frame, nframes, savedir):
+    def __init__(self, fish_name, assay_label, start_frame, nframes, savedir, soundfont: pathlib.Path):
         self.fish_name = fish_name
         self.assay_label = assay_label
         self.start_frame = start_frame
@@ -241,6 +244,7 @@ class CruiseMidiMaker:
         self.wf_stats = []
         self.keypoint_frame_sounds = [[] for _ in range(8)]
         self.savedir = pathlib.Path(savedir)
+        self.soundfont = pathlib.Path(soundfont)
 
     def save_video(self, keypoint_notes=KeypointToneGroup.harmonic_series):
         self._save_audio(keypoint_notes)
@@ -333,10 +337,9 @@ class CruiseMidiMaker:
     def _midi_to_wav(self):
         midifile = self._filepath('.mid')
         wavfile = self._filepath('.wav')
-        soundfont = pathlib.Path('/Users/nick/Box/dissertation/sonification/Creative(emu10k1)8MBGMSFX.SF2')
         fs = FluidSynth()
-        if soundfont.exists():
-            fs = FluidSynth(sound_font=soundfont.as_posix())
+        if self.soundfont.exists():
+            fs = FluidSynth(sound_font=self.soundfont.as_posix())
         fs.midi_to_audio(midifile.as_posix(), wavfile.as_posix())
         print('Saved', wavfile)
 
