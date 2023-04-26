@@ -2,7 +2,7 @@
 '''
 
 from typing import List
-import tqdm
+from tqdm import tqdm
 import numpy
 from scipy import signal
 from collections import namedtuple
