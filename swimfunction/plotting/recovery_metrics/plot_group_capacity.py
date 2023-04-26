@@ -5,6 +5,7 @@ import numpy
 from matplotlib import pyplot as plt
 from matplotlib import ticker as mtick
 
+from swimfunction.data_access.fish_manager import DataManager as FDM
 from swimfunction import FileLocations
 from swimfunction.data_access.assembled_dataframes import get_metric_dataframe
 from swimfunction.plotting.matplotlib_helpers \
@@ -154,5 +155,5 @@ def main():
     ''' Plot groups separately and altogether.
     '''
     savedir = FileLocations.get_capacity_metrics_plot_dir()
-    for group in ['M', 'F', None]:
+    for group in FDM.get_groups() + [None]:
         plot_capacity_metrics_distribution_and_trends(savedir, group)

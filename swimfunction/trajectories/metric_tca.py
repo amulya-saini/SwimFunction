@@ -764,14 +764,17 @@ def save_model(model, t_index: TensorIndex, outpath: pathlib.Path):
                 fh.write('\n')
 
 def main(savedir: pathlib.Path):
+    available_assays = FDM.get_available_assay_labels()
+    if len(available_assays) < 2:
+        return
     group = None
-    group_to_chosen_rank = {'M': 7, 'F': 7, None: 7}
+    chosen_rank = 7
     savedir.parent.mkdir(exist_ok=True, parents=False)
     savedir.mkdir(exist_ok=True, parents=False)
     ensembles_dir = savedir / 'ensembles'
     ensembles_dir.mkdir(exist_ok=True, parents=False)
     ensembles, best_model = load_ensembles_and_best_model_of_rank(
-        ensembles_dir, group, group_to_chosen_rank[group], overwrite_cache=False)
+        ensembles_dir, group, chosen_rank, overwrite_cache=False)
     if ensembles is None or 't_index' not in ensembles or not ensembles['t_index'].nfish:
         return
     save_model(

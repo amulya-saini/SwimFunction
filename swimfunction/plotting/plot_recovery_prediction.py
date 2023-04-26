@@ -180,6 +180,8 @@ def plot_main_figure(savedir: pathlib.Path):
     fig, nope_axs = plt.subplots(1, 2, figsize=(FIGURE_WIDTH/2, FIGURE_ROW_HEIGHT))
 
     df = get_metric_dataframe()
+    if 'F' not in df['group'] or 'M' not in df['group']:
+        return
     early_df = add_predictions(df[numpy.in1d(df['assay'], (1, 2))])
     early_df['will_recover_best'] = early_df['will_recover_best'].astype(bool)
     early_df_f = early_df[[data_utils.fish_name_to_group(f) == 'F' for f in early_df['fish']]]

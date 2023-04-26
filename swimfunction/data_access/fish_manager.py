@@ -566,7 +566,7 @@ class _FishManager:
 
     @staticmethod
     def get_groups(experiment_name=None) -> list:
-        ''' If experiment has fish 'F1' and 'M1', returns ['M', 'F'].
+        ''' Get available groups. Example: if experiment has fish 'F1' and 'M1', returns ['M', 'F'].
         '''
         return list(set([
             data_utils.fish_name_to_group(n)

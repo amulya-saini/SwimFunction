@@ -143,7 +143,7 @@ def plot_metric_clustermap(
         return
     print('Done!')
     group_str = f'{group}' if group is not None else ''
-    group_title = 'All Fish' if group is None else 'Males' if group == 'M' else 'Females'
+    group_title = 'All Fish' if group is None else 'Males' if group == 'M' else 'Females' if group == 'F' else group
     annot_type = 'Spearman R'
     cg.ax_heatmap.tick_params(axis='both', which='both', labelsize=DOTSIZE)
     cg.ax_cbar.set_title(annot_type, fontsize=AXIS_TICKSIZE, pad=15)

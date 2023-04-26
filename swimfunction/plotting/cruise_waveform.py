@@ -1,7 +1,5 @@
 # New change: not showing all vs >20%, showing <20% vs >20%
 ''' Plots like Figure 2 in the paper
-
-# TODO use ugly but obvious colors instead for the public repo.
 '''
 
 from matplotlib import pyplot as plt
@@ -79,16 +77,15 @@ def plot_amplitude_by_bridging(
         'amplitudes', group=group, assays=assays_to_show_waveform,
         bridging_selection=BRIDGING_SELECTION.high)
 
-    # count fish with non-nan amplitude metric
-    n_high_male = df_high_bridging[df_high_bridging['group'] == 'M']\
-        .loc[:, ('fish', ROSTRAL_COMP_METRIC)].dropna()['fish'].unique().size
-    n_high_female = df_high_bridging[df_high_bridging['group'] == 'F']\
-        .loc[:, ('fish', ROSTRAL_COMP_METRIC)].dropna()['fish'].unique().size
-
-    n_low_male   = df_low_bridging[df_low_bridging['group'] == 'M']\
-        .loc[:, ('fish', ROSTRAL_COMP_METRIC)].dropna()['fish'].unique().size
-    n_low_female = df_low_bridging[df_low_bridging['group'] == 'F']\
-        .loc[:, ('fish', ROSTRAL_COMP_METRIC)].dropna()['fish'].unique().size
+    groups = get_metric_dataframe(group=group)['group'].unique()
+    n_high = {}
+    n_low = {}
+    for group in groups:
+        # count fish with non-nan amplitude metric
+        n_high[group] = df_high_bridging[df_high_bridging['group'] == group]\
+            .loc[:, ('fish', ROSTRAL_COMP_METRIC)].dropna()['fish'].unique().size
+        n_low[group] = df_low_bridging[df_low_bridging['group'] == group]\
+            .loc[:, ('fish', ROSTRAL_COMP_METRIC)].dropna()['fish'].unique().size
 
     print(group, 'counts')
     print('  Low')
@@ -141,14 +138,12 @@ def plot_amplitude_by_bridging(
         if ax.get_legend() is not None:
             ax.get_legend().remove()
 
-    n_str = f'n=({n_low_male}m, {n_low_female}f)' \
-        if group is None else f'n={n_low_male}' if group == 'M' else f'n={n_low_female}'
+    n_str = 'n=(' + ', '.join([f'{n_low[group]}{group}' for group in groups]) + ')'
     worst_amplitude_ax.set_title(
         f'Amplitude\nBridging < {bridging_threshold:.1f}, {n_str}', fontsize=14)
     worst_rostral_compensation_ax.set_title(
         f'Rostral Compensation\nBridging < {bridging_threshold:.1f}, {n_str}', fontsize=14)
-    n_str = f'n=({n_high_male}m, {n_high_female}f)' \
-        if group is None else f'n={n_high_male}' if group == 'M' else f'n={n_high_female}'
+    n_str = 'n=(' + ', '.join([f'{n_high[group]}{group}' for group in groups]) + ')'
     best_amplitude_ax.set_title(
         f'Amplitude\nBridging > {bridging_threshold:.1f}, {n_str}', fontsize=14)
     best_rostral_compensation_ax.set_title(
@@ -179,11 +174,13 @@ def plot_amplitude_ignore_bridging(savedir, group, assays_to_show_waveform=None)
     df_waveform = get_waveform_dataframe(
         'amplitudes', group=group, assays=assays_to_show_waveform)
 
+    groups = get_metric_dataframe(group=group)['group'].unique()
+    n_nums = {}
     # count fish with non-nan amplitude metric
-    n_male = df[df['group'] == 'M']\
-        .loc[:, ('fish', ROSTRAL_COMP_METRIC)].dropna()['fish'].unique().size
-    n_female = df[df['group'] == 'F']\
-        .loc[:, ('fish', ROSTRAL_COMP_METRIC)].dropna()['fish'].unique().size
+    for group in groups:
+        # count fish with non-nan amplitude metric
+        n_nums[group] = df[df['group'] == group]\
+            .loc[:, ('fish', ROSTRAL_COMP_METRIC)].dropna()['fish'].unique().size
 
     print(group, 'counts')
     for wpi in assays_to_show_waveform:
@@ -199,7 +196,7 @@ def plot_amplitude_ignore_bridging(savedir, group, assays_to_show_waveform=None)
     tail_beat_ax = axs[2]
     strouhal_ax = axs[3]
 
-    group_tag = group if group is not None else 'M+F'
+    group_tag = group if group is not None else '+'.join(groups)
     plot_waveform(df_waveform, amplitude_ax, 'amplitudes')
     make_assay_barplot(
         df,
@@ -217,8 +214,7 @@ def plot_amplitude_ignore_bridging(savedir, group, assays_to_show_waveform=None)
         if ax.get_legend() is not None:
             ax.get_legend().remove()
 
-    n_str = f'n=({n_male}m, {n_female}f)' \
-        if group is None else f'n={n_male}' if group == 'M' else f'n={n_female}'
+    n_str = 'n=(' + ', '.join([f'{n_nums[group]}{group}' for group in groups]) + ')'
     amplitude_ax.set_title(
         f'Amplitude n={n_str}', fontsize=14)
     rostral_comp_ax.set_title(
@@ -235,7 +231,7 @@ def main(savedir):
     '''
     df = get_metric_dataframe().reset_index()
     has_bridging = 'glial_bridging' in df and df['glial_bridging'].dropna().size
-    for group in ['M', 'F', None]:
+    for group in list(df['group'].unique()) + [None]:
         if has_bridging:
             plot_amplitude_by_bridging(savedir, group)
         else:

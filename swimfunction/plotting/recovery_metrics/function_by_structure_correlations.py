@@ -5,6 +5,7 @@ from sklearn.ensemble import HistGradientBoostingRegressor
 from sklearn.linear_model import LinearRegression
 import numpy
 
+from swimfunction.data_access.fish_manager import DataManager as FDM
 from swimfunction.data_access.assembled_dataframes import get_metric_dataframe
 from swimfunction.plotting import matplotlib_helpers as mpl_helpers
 from swimfunction.plotting.swim_specific_helpers \
@@ -231,7 +232,7 @@ class FunctionByStructurePlotter:
 def main(savedir: pathlib.Path):
     ''' Plot with groups together and separated
     '''
-    for group in ['M', 'F', None]:
+    for group in FDM.get_groups() + [None]:
         get_logger().info('Group: %s', group)
         plotter = FunctionByStructurePlotter(savedir, group)
         plotter.plot_main_function()

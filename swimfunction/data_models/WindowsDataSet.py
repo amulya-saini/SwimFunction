@@ -43,7 +43,6 @@ class WindowsDataSet(DataSet.DataSet):
         else:
             self.labels = behaviors[self.margin:self.margin+len(self.data)]
         if meta_labels is not None:
-            # TODO: double check this line, given pandas weirdness.
             self.meta_labels = self.meta_labels[self.margin:self.margin+len(self.data)]
         return self
 

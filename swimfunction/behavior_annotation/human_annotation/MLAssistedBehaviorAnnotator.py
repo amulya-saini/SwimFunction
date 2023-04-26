@@ -254,9 +254,6 @@ class MLAssistedBehaviorAnnotator:
         for i in numpy.where(cleaned == TARGET_BEHAVIOR)[0]:
             if original_annotations[i] != TARGET_BEHAVIOR:
                 original_annotations[i] = TARGET_BEHAVIOR
-                # TODO only replace "ML" with person_who_annotates if
-                #    the annotation was viewed by the human
-                #    (use last page seen in annotator?)
                 annotator_array[i] = self.person_who_annotates
         # save behaviors
         BDM.save_behaviors(fish_name, assay_label, original_annotations, annotator_array)

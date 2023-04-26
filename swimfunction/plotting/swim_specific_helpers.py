@@ -111,12 +111,13 @@ def plot_waveform(df_waveform: pandas.DataFrame, feature_ax, feature):
     '''
     Feature must be in [amplitudes, frequencies]
     '''
+    from swimfunction.data_access.fish_manager import DataManager as FDM
     if df_waveform is None or not df_waveform.size:
         return
     group_palette_soft = mpl_helpers.df_to_group_palette(
-        pandas.DataFrame({'group': ['M', 'F']}), soft_colors=True)
+        pandas.DataFrame({'group': FDM.get_groups()}), soft_colors=True)
     group_palette = mpl_helpers.df_to_group_palette(
-        pandas.DataFrame({'group': ['M', 'F']}), soft_colors=False)
+        pandas.DataFrame({'group': FDM.get_groups()}), soft_colors=False)
     for group in df_waveform.index.get_level_values('group').unique():
         for assay in df_waveform.index.get_level_values('assay').unique():
             df = df_waveform.loc[

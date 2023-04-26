@@ -246,7 +246,7 @@ def main():
     plotter = EmbeddingPlotter(
         FileLocations.get_cruise_embedding_dir(INCLUDE_SCOLIOTIC_FISH))
     plotter.embedding_to_csv()
-    for group in ['M', 'F', None]:
+    for group in FDM.get_groups() + [None]:
         plotter.plot_exemplars_PCA(group)
         plotter.plot_exemplars_umap_scatter(group)
         plotter.plot_exemplars_umap(group)

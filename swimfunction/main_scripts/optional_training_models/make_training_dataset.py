@@ -10,7 +10,6 @@ import pathlib
 from swimfunction.pose_annotation.human_annotation import annotate_with_elegant
 
 def main(videos_dir, training_root_dir, scorer):
-    # TODO: fill in more.
     extract_training_frames.extract_training_frames(
         videos_dir,
         training_root_dir,

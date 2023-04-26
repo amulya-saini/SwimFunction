@@ -72,8 +72,8 @@ def plot_predictions_and_tca():
     else:
         header('Plotting predictions and outcomes (if available)')
         plot_recovery_prediction.plot_main_figure(
-        FileLocations.mkdir_and_return(
-            FileLocations.get_plots_dir() / 'outcome_prediction'))
+            FileLocations.mkdir_and_return(
+                FileLocations.get_plots_dir() / 'outcome_prediction'))
     header('Performing and plotting TCA')
     metric_tca.main(
         FileLocations.mkdir_and_return(FileLocations.get_plots_dir() / 'tca'))
