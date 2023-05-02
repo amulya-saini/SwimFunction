@@ -294,7 +294,6 @@ def get_decomposed_assay_cruise_episodes(fish: Fish, assay_label, pca_result, nd
         AnnotationTypes.predicted,
         BASIC_FILTERS)
 
-    # TODO: Filter those with fewer than 3 waveforms, not limit by total length.
     episode_indices = list(filter(lambda a: len(a) >= 15, episode_indices))
     if not episode_indices:
         return [], []

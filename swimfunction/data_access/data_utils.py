@@ -68,8 +68,8 @@ def _match_assay_label(piece: str) -> int:
     '''
     preinjury_assay = config.getint('EXPERIMENT DETAILS', 'uninjured_assay_label')
     assay_label = None
-    if 'WPI' in piece or 'PREINJ' in piece and assay_label is None:
-        assay_label = preinjury_assay if 'PREINJ' in piece else int(piece.replace('WPI', ''))
+    if 'DPI' in piece or 'WPI' in piece or 'PREINJ' in piece and assay_label is None:
+        assay_label = preinjury_assay if 'PREINJ' in piece else int(piece.replace('WPI', '').replace('DPI', ''))
     if 'TREATMENT' in piece and assay_label is None:
         assay_label = -1 if 'PRE' in piece else 1 if 'POST' in piece else None
     return assay_label
