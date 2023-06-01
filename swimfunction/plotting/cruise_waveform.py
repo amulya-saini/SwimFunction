@@ -157,6 +157,9 @@ def plot_amplitude_by_bridging(
     mpl_helpers.same_axis_lims(
         (worst_rostral_compensation_ax, best_rostral_compensation_ax), False, True)
 
+    if group is None:
+        worst_amplitude_ax.legend()
+        worst_rostral_compensation_ax.legend()
     fig.tight_layout()
     save_fig(fig, figpath)
     plt.close(fig)

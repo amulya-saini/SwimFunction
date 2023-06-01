@@ -177,6 +177,7 @@ class FunctionByStructurePlotter:
         flat_axs = axs.flatten()
         for ax, x_metric in zip(flat_axs, metrics):
             self.plot_metric_against_structure(x_metric, structural_metrics, ax)
+            ax.legend()
         fname = f'{fprefix}{self.group_str}pairwise.png'
         mpl_helpers.save_fig(fig, self.savedir / fname)
         plt.close(fig)
@@ -205,6 +206,7 @@ class FunctionByStructurePlotter:
                 metric, y_structure_metrics, ax,
                 axislabelsize=8, axistitlesize=10, offsettextsize=8,
                 xticks=xticks)
+            ax.legend()
         fig.tight_layout()
         fname = f'{self.group_str}metric_of_each_type.png'
         mpl_helpers.save_fig(fig, self.savedir / fname)

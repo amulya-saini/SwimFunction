@@ -145,6 +145,8 @@ def plot_capacity_metrics_distribution_and_trends(savedir: pathlib.Path, group: 
 
     line_axs[0].ticklabel_format(axis='y', style='sci', scilimits=(5, 5))
     line_axs[0].yaxis.offsetText.set_fontsize(LEGEND_FONTSIZE)
+    if group is None:
+        line_axs[0].legend()
 
     line_fig.tight_layout(h_pad=6, w_pad=4)
 

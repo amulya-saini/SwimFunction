@@ -75,11 +75,11 @@ def plot_distance_by_compensation(
             if 'will_recover_best' in df.columns else numpy.ones(df.shape[0])
         ax.scatter(
             d[pred_mask], a[pred_mask],
-            edgecolors='k', linewidths=lwidth, s=msize,
+            edgecolors='k', linewidths=lwidth, s=msize, label='Predicted Well',
             marker='D', facecolors=cvals[pred_mask])
         ax.scatter(
             d[~pred_mask], a[~pred_mask],
-            edgecolors='k', linewidths=lwidth, s=msize,
+            edgecolors='k', linewidths=lwidth, s=msize, label='Predicted Poor',
             marker='o', facecolors=cvals[~pred_mask])
     ax.set_xlim(0, None)
     ax.set_ylim(0, None)
@@ -177,7 +177,7 @@ def add_predictions(df):
 def plot_main_figure(savedir: pathlib.Path):
     ''' Plot outcome prediction details.
     '''
-    fig, nope_axs = plt.subplots(1, 2, figsize=(FIGURE_WIDTH/2, FIGURE_ROW_HEIGHT))
+    fig, axs = plt.subplots(1, 2, figsize=(FIGURE_WIDTH/2, FIGURE_ROW_HEIGHT))
 
     df = get_metric_dataframe()
     if 'F' not in df['group'] or 'M' not in df['group']:
@@ -186,31 +186,32 @@ def plot_main_figure(savedir: pathlib.Path):
     early_df['will_recover_best'] = early_df['will_recover_best'].astype(bool)
     early_df_f = early_df[[data_utils.fish_name_to_group(f) == 'F' for f in early_df['fish']]]
     early_df_m = early_df[[data_utils.fish_name_to_group(f) == 'M' for f in early_df['fish']]]
-    plot_distance_by_compensation(nope_axs[0], early_df_f, 'will_recover_best', 'RdBu')
-    nope_axs[0].set_title('Female')
-    plot_distance_by_compensation(nope_axs[1], early_df_m, 'will_recover_best', 'RdBu')
-    nope_axs[1].set_title('Male')
-    nopevplot, nopesplot = plot_final_sorting_multiple_y(
+    plot_distance_by_compensation(axs[0], early_df_f, 'will_recover_best', 'RdBu')
+    axs[0].set_title('Female')
+    plot_distance_by_compensation(axs[1], early_df_m, 'will_recover_best', 'RdBu')
+    axs[1].set_title('Male')
+    vplot, splot = plot_final_sorting_multiple_y(
         add_nope_8wpi_prediction_group(df[df['assay'] == 8]))
 
-    if nopevplot is not None:
-        for snsplot in (nopevplot, nopesplot):
+    if vplot is not None:
+        for snsplot in (vplot, splot):
             snsplot.set_size_inches(FIGURE_WIDTH * 0.5, FIGURE_ROW_HEIGHT)
             snsplot.tight_layout()
         for ax in fig.get_axes() \
-                + nopevplot.get_axes() \
-                + nopesplot.get_axes():
+                + vplot.get_axes() \
+                + splot.get_axes():
             mpl_helpers.set_axis_tick_params(ax, labelsize=8)
             mpl_helpers.shrink_lines_and_dots(ax, linewidth=2)
-        mpl_helpers.save_fig(nopevplot, savedir / 'outcome_prediction_final_structure_violinplot.png')
-        mpl_helpers.save_fig(nopesplot, savedir / 'outcome_prediction_final_structure_stripplot.png')
-        plt.close(nopevplot)
-        plt.close(nopesplot)
+        mpl_helpers.save_fig(vplot, savedir / 'outcome_prediction_final_structure_violinplot.png')
+        mpl_helpers.save_fig(splot, savedir / 'outcome_prediction_final_structure_stripplot.png')
+        plt.close(vplot)
+        plt.close(splot)
 
     # Finalize axes
-    nope_axs[1].set_xlabel(None)
-    nope_axs[1].set_ylabel(None)
-    mpl_helpers.same_axis_lims(nope_axs)
+    axs[0].legend()
+    axs[1].set_xlabel(None)
+    axs[1].set_ylabel(None)
+    mpl_helpers.same_axis_lims(axs)
 
     fig.suptitle('Ranked Metrics', fontsize=16)
 
