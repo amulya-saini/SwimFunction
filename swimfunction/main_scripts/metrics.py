@@ -46,31 +46,36 @@ ENFORCE_EQUAL_LABEL_REPRESENTATION = True
 BEHAVIORS = config.getnamedtuple('BEHAVIORS', 'names', 'BEHAVIORS', 'symbols')
 PREDICT_FEATURE = config.get('MACHINE_LEARNING', 'predict_feature')
 
-EXPERIMENT_NAME_TO_WAS_TRACKED = config.getbooldict(
-    'EXPERIMENT DETAILS', 'names',
-    'EXPERIMENT DETAILS', 'individuals_were_tracked')
+# Whether the fish identities carry over from assay to assay.
+# For example, did you house the fish separately and keep track
+# of which is which for the entire expriment? If so, put it in the config.ini file.
+FISH_WERE_TRACKED = config.getboolean('EXPERIMENT DETAILS', 'individuals_were_tracked')
 
 PREDICTORS = namedtuple('predictors', ['rest_predictor', 'cruise_predictor'])
 
-PREINJURY_ASSAY = config.getint('EXPERIMENT DETAILS', 'uninjured_assay_label')
+PREINJURY_ASSAY = config.getint('EXPERIMENT DETAILS', 'control_assay_label')
 
 def get_logger() -> loggers.logging.Logger:
     ''' Get the default metric calculation logger.
     '''
     return loggers.get_metric_calculation_logger(__name__)
 
+def _run_gracefully(fn, *args, **kwargs):
+    ''' Runs the provided function
+    catching and printing any exceptions.
+    Prevents unexpected errors from ending the workflow entirely.
+    '''
+    rv = None
+    try:
+        rv = fn(*args, **kwargs)
+    except Exception as e:
+        get_logger().error(e)
+    return rv
+
 def header(msg):
     ''' Log the message loud and clear.
     '''
     get_logger().info('\n------- %s -------\n', msg)
-
-def fish_identities_were_tracked_in_the_experiment() -> bool:
-    ''' Whether the fish identities carry over from assay to assay.
-    For example, did you house the fish separately and keep track
-    of which is which for the entire expriment? If so, put it in the config.ini file.
-    '''
-    return config.experiment_name in EXPERIMENT_NAME_TO_WAS_TRACKED \
-        and EXPERIMENT_NAME_TO_WAS_TRACKED[config.experiment_name]
 
 def analyzer_to_metrics(analyzer):
     ''' Get all expected metrics from the analyzer
@@ -260,8 +265,8 @@ def metrics_main(control_assay_for_rostral_compensation=PREINJURY_ASSAY):
     default_setup()
     # Calculate all metrics
     calculate_metrics_as_required(ANALYZER_CLASSES, control_assay_for_rostral_compensation)
-    if fish_identities_were_tracked_in_the_experiment():
-        predict_outcomes()
+    if FISH_WERE_TRACKED:
+        _run_gracefully(predict_outcomes)
 
 if __name__ == '__main__':
     ARGS = FileLocations.parse_default_args()

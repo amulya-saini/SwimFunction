@@ -236,14 +236,15 @@ At the end of the outcome prediction experiment, consider providing "outcome_pre
 
 2) Copy `config-template.ini` to `config.ini` and update the following:
 
-    - [EXPERIMENT DETAILS] names
-        - List of all experiments in the cache root
-    - [EXPERIMENT DETAILS] individuals_were_tracked
-        - Parallel list of booleans, whether fish identities are consistent between assays (if a fish is named F23 in assay 3, is it the exact same fish as the one named F23 in assay 5? If so, put "true" in the list, otherwise, use "false")
-    - [EXPERIMENT DETAILS] assay_labels
-    - (optional) [EXPERIMENT DETAILS] experiment_name
+    - [EXPERIMENT DETAILS] experiment_name
         - Active experiment name
-    - (optional) [FOLDERS] cache_root
+        - Name of the subfolder containing the experiment data
+    - [EXPERIMENT DETAILS] individuals_were_tracked
+        - Boolean, whether fish identities are consistent between assays (if a fish is named F23 in assay 3, is it the exact same fish as the one named F23 in assay 5? If so, put "true" in the list, otherwise, use "false")
+    - [EXPERIMENT DETAILS] assay_labels
+        - List of integers, indicates which time points or conditions were measured (-1 is preinjury, pretreatment, or control.)
+    - [FOLDERS] cache_root
+        - Parent folder for the experiment
 
 3) Run the `calculate_and_plot_everything.py` script
 

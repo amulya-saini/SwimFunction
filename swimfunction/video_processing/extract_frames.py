@@ -9,7 +9,7 @@ from swimfunction.data_access.data_utils import parse_details_from_filename
 from swimfunction.global_config.config import config
 from swimfunction.video_processing import fp_ffmpeg
 
-UNINJURED_WEEK = config.getint('EXPERIMENT DETAILS', 'uninjured_assay_label')
+UNINJURED_WEEK = config.getint('EXPERIMENT DETAILS', 'control_assay_label')
 
 class Extractor:
     ''' Extracts frames from videos in a smart way.

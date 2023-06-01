@@ -13,13 +13,29 @@ from swimfunction.plotting.recovery_metrics \
 from swimfunction.plotting import eigenfish_figure, cruise_waveform, \
     plot_recovery_prediction, plot_cruise_embedding
 from swimfunction.trajectories import metric_tca
-from swimfunction.main_scripts.metrics \
-    import fish_identities_were_tracked_in_the_experiment
+from swimfunction.global_config.config import config
+
+# Whether the fish identities carry over from assay to assay.
+# For example, did you house the fish separately and keep track
+# of which is which for the entire expriment? If so, put it in the config.ini file.
+FISH_WERE_TRACKED = config.getboolean('EXPERIMENT DETAILS', 'individuals_were_tracked')
 
 def get_logger() -> loggers.logging.Logger:
     ''' Get the default plotting logger.
     '''
     return loggers.get_plotting_logger(__name__)
+
+def _run_gracefully(fn, *args, **kwargs):
+    ''' Runs the provided function
+    catching and printing any exceptions.
+    Prevents unexpected errors from ending the workflow entirely.
+    '''
+    rv = None
+    try:
+        rv = fn(*args, **kwargs)
+    except Exception as e:
+        get_logger().error(e)
+    return rv
 
 def header(msg):
     ''' Log the message loud and clear.
@@ -33,7 +49,7 @@ def plot_lateral_scoliosis():
     save_dir = FileLocations.get_plots_dir()
     header('Plotting Scoliosis')
     plotter = ScoliosisPlotter()
-    if fish_identities_were_tracked_in_the_experiment():
+    if FISH_WERE_TRACKED:
         fig = plotter.plot_trendlines()
         fig.savefig(save_dir / 'lateral_scoliosis_weekly_trends.png')
         plt.close(fig)
@@ -61,7 +77,7 @@ def plot_metrics_vs_structure():
     '''
     df = get_metric_dataframe()
     if 'glial_bridging' in df.columns and df['glial_bridging'].dropna().size:
-        function_by_structure_correlations.main(
+        _run_gracefully(function_by_structure_correlations.main,
             FileLocations.mkdir_and_return(
                 FileLocations.get_plots_dir() / 'metrics_vs_cellular_regeneration')
         )
@@ -71,33 +87,33 @@ def plot_predictions_and_tca():
         get_logger().info('Predictions do not exist, so they will not be plotted.')
     else:
         header('Plotting predictions and outcomes (if available)')
-        plot_recovery_prediction.plot_main_figure(
+        _run_gracefully(plot_recovery_prediction.plot_main_figure,
             FileLocations.mkdir_and_return(
                 FileLocations.get_plots_dir() / 'outcome_prediction'))
     header('Performing and plotting TCA')
-    metric_tca.main(
+    _run_gracefully(metric_tca.main,
         FileLocations.mkdir_and_return(FileLocations.get_plots_dir() / 'tca'))
 
 def plot_metrics():
     ''' All main plots of interest.
     '''
     header('Plotting eigenfish')
-    eigenfish_figure.main(FileLocations.get_plots_dir())
+    _run_gracefully(eigenfish_figure.main, FileLocations.get_plots_dir())
 
     header('Plotting posture novelty and scoliosis')
-    plot_lateral_scoliosis()
-    plot_pose_posture_novelty()
+    _run_gracefully(plot_lateral_scoliosis)
+    _run_gracefully(plot_pose_posture_novelty)
 
     header('Plotting metric correlations')
-    MetricCorrelationPlotter.main()
+    _run_gracefully(MetricCorrelationPlotter.main)
 
     header('Plotting swim capacity metrics')
-    plot_group_capacity.main()
-    plot_each_fish_capacity_metrics.plot_metrics_for_entire_experiment(
+    _run_gracefully(plot_group_capacity.main)
+    _run_gracefully(plot_each_fish_capacity_metrics.plot_metrics_for_entire_experiment,
         force_recalculate=False, include_heatmaps=False)
 
     header('Plotting cruise waveform')
-    cruise_waveform.main(
+    _run_gracefully(cruise_waveform.main,
         FileLocations.mkdir_and_return(
             FileLocations.get_plots_dir() / 'cruise_waveform'))
 
@@ -106,10 +122,10 @@ def plotting_main():
     '''
     plot_metrics()
     plot_metrics_vs_structure()
-    if fish_identities_were_tracked_in_the_experiment():
+    if FISH_WERE_TRACKED:
         plot_predictions_and_tca()
-    header('Plotting (calculating too, if needed) cruise embedding...') 
-    plot_cruise_embedding.main()
+    header('Plotting (calculating too, if needed) cruise embedding...')
+    _run_gracefully(plot_cruise_embedding.main)
 
 if __name__ == '__main__':
     plt.switch_backend('agg') # No gui will be created. Safer for distributed processing.

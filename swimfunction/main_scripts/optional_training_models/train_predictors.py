@@ -67,27 +67,23 @@ def classify_behaviors_from_sequential_poses(
     behaviors[numpy.where(rest_mask)] = BEHAVIORS.rest
     return behaviors
 
-def predict_rests_and_cruises_all_experiments():
+def predict_rests_and_cruises():
     ''' Predict behaviors for all experiments
     '''
     rest_predictor = RestPredictor(PREDICT_FEATURE)
     ml_predictor = UmapClassifier()
     ml_predictor.load_models()
-    experiments = config.getstringlist('EXPERIMENT DETAILS', 'names')
     print('Predicting all rests and cruises...')
-    for experiment in experiments:
-        with AccessContext(experiment_name=experiment):
-            print('\t', experiment)
-            for fish_name in tqdm(FDM.get_available_fish_names()):
-                fish = Fish(name=fish_name).load()
-                for assay in tqdm(FDM.get_available_assay_labels(fish_name), leave=False):
-                    sequential_poses = PoseAccess.get_feature_from_assay(
-                        fish[assay], PREDICT_FEATURE, pose_filters.BASIC_FILTERS, True)
-                    fish[assay].predicted_behaviors = classify_behaviors_from_sequential_poses(
-                        sequential_poses,
-                        ml_predictor,
-                        rest_predictor)
-                fish.save()
+    for fish_name in tqdm(FDM.get_available_fish_names()):
+        fish = Fish(name=fish_name).load()
+        for assay in tqdm(FDM.get_available_assay_labels(fish_name), leave=False):
+            sequential_poses = PoseAccess.get_feature_from_assay(
+                fish[assay], PREDICT_FEATURE, pose_filters.BASIC_FILTERS, True)
+            fish[assay].predicted_behaviors = classify_behaviors_from_sequential_poses(
+                sequential_poses,
+                ml_predictor,
+                rest_predictor)
+        fish.save()
     print('Done!')
 
 def evaluate_models():
@@ -134,4 +130,4 @@ if __name__ == '__main__':
     # train_umap_classifier_predictor()
     # train_rest_predictor()
     evaluate_models()
-    # predict_rests_and_cruises_all_experiments()
+    # predict_rests_and_cruises()

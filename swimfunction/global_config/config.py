@@ -189,7 +189,7 @@ config.read(config.test_config_path) # By default, uses test config only.
 # PPW = config.getint('BEHAVIOR_ANNOTATION', 'poses_per_window')
 # POINTS_PER_POSE = config.getint('POSES', 'points_per_pose')
 # WPI_OPTIONS = config.getintlist('EXPERIMENT DETAILS', 'assay_labels')
-# UNINJURED_WEEK = config.getint('EXPERIMENT DETAILS', 'uninjured_assay_label')
+# UNINJURED_WEEK = config.getint('EXPERIMENT DETAILS', 'control_assay_label')
 # ANGLE_CHANGE_Z_LIM = config.getint('POSE FILTERING', 'angle_change_z_lim')
 # FRAME_SIDE_BUFFER_WIDTH = config.getint('POSE FILTERING', 'frame_side_buffer_width')
 # FRAME_REAR_BUFFER_WIDTH = config.getint('POSE FILTERING', 'frame_rear_buffer_width')
