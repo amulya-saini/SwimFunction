@@ -53,15 +53,15 @@ def plot_eigenfish(group, assay_label, subfig):
 def big_plot(outdir):
     assays = FDM.get_available_assay_labels()
     print('The eigenfish plot includes preinjury (-1), 1 wpi (1), and 8 wpi (8) assays.')
-    print('It also requires groups "M" and "F".')
+    print('It also requires groups "M" and "F" to make the full plot.')
     groups = FDM.get_available_fish_names_by_group().keys()
-    if 'M' not in groups or 'F' not in groups:
-        return
     fig = plt.figure(figsize=(FIGURE_WIDTH, FIGURE_MAX_HEIGHT-2))
     gs = gridspec.GridSpec(nrows=5, ncols=4)
     plot_eigenfish(None, None, fig.add_subfigure(gs[0, 1:3]))
-    plot_eigenfish('M', None, fig.add_subfigure(gs[1, :2]))
-    plot_eigenfish('F', None, fig.add_subfigure(gs[1, 2:]))
+    if 'M' in groups:
+        plot_eigenfish('M', None, fig.add_subfigure(gs[1, :2]))
+    if 'F' in groups:
+        plot_eigenfish('F', None, fig.add_subfigure(gs[1, 2:]))
     if -1 in assays:
         if 'M' in groups:
             plot_eigenfish('M', -1, fig.add_subfigure(gs[2, :2]))

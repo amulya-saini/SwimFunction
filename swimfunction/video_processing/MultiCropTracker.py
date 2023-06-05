@@ -1,12 +1,19 @@
-''' Frame by frame crops to the most likely location of each fish in the video.
-
-Crop-tracking turns a large video into a cropped video
-    that centers the fish in-frame.
-
-Multi-animal crop-tracking turns one video into several
-    crop-tracked videos, one for each fish.
-
+'''
 Warning! Multi-animal crop-tracking is experimental, unpublished, and not guaranteed to work well.
+
+This script will crop to the most likely location of each fish in the video
+    creating a new video for each fish.
+
+    Crop-tracking turns a large video into a cropped video
+        that centers the fish in-frame.
+
+    Multi-animal crop-tracking turns one video into several
+        crop-tracked videos, one for each fish.
+
+As written, MultiCropTracker will require user input,
+    so don't expect this to just run overnight.
+    Be prepared to type a few details, like the group label,
+    the assay time point, and the number of fish in the video.
 
 IMPORTANT DEVELOPMENT POINT (regular users can ignore this):
 Internal functions modify images using [width, height] indexing, despite convention.
@@ -14,11 +21,11 @@ This is to retain freeimage compatibility (see fp_ffmpeg).
 '''
 
 from collections import namedtuple
+from typing import List
 import pathlib
 from scipy import ndimage, optimize
 from scipy.ndimage.measurements import center_of_mass
 import numpy
-from sklearn.cluster import KMeans
 from swimfunction.context_managers.FileLock import FileLock
 from swimfunction.global_config.config import config
 from swimfunction.video_processing.image_processing import threshold
@@ -47,7 +54,7 @@ class MultiCropTracker(CropTracker):
     each of which follows a different fish and masks the others.
     '''
 
-    __slots__ = ['nfish', 'prior_centers']
+    __slots__ = ['nfish', 'prior_centers', 'group', 'assay']
 
     def __init__(self, *args, **kwargs):
         '''
@@ -57,8 +64,10 @@ class MultiCropTracker(CropTracker):
             Number of fish in the video.
         '''
         super().__init__(*args, **kwargs)
-        self.nfish = None if 'nfish' not in kwargs else kwargs['nfish']
+        self.nfish = kwargs.get('nfish', None)
         self.prior_centers = []
+        self.group = 'GROUP'
+        self.assay = 999
 
     @staticmethod
     def from_logfile(logfname, class_type=None):
@@ -70,24 +79,24 @@ class MultiCropTracker(CropTracker):
         ''' Detect number of fish, make sure the user agrees the number is correct.
         '''
         first_frame = fp_ffmpeg.read_frame(vfile, frame_num=0)
-        if self.nfish is None or self.nfish == 0:
-            found_fish = self.find_fish_in_frame(first_frame, standardizers)
+        print('Video:', vfile)
+        self.group = input('What is the group identifier for these fish? (examples: "M" for male, or "F" for female) '
+                'Type the group then press enter:'
+            ).strip().upper().replace('\'', '').replace('"', '')
+        self.assay = int(input('What is the integer assay label for these fish?'
+                '(examples: "4" for 4 weeks post-injury. Use -1 for control assay) '
+            ).strip().replace('\'', '').replace('"', ''))
+        found_fish = self.find_fish_in_frame(first_frame, standardizers)
+        if self.nfish is None or self.nfish == 0 or len(found_fish) != self.nfish:
             self.nfish = len(found_fish)
-            check_str = f'Found {self.nfish} fish. Is this correct?'
-            if not self.debug and input(check_str).strip().upper() != 'Y':
-                self.nfish = int(input('How many fish?').strip())
-        else:
-            # img_ss is image subsampled
-            img_ss = standardizers.subsampled.get_standardized_frame(
-                self.subsample_image(first_frame, self.subsample_factor)
-            )
-            mask_ss = threshold(img_ss, th=BINARIZING_THRESHOLD)
-            points = numpy.asarray(numpy.where(mask_ss == 1)).T
-            centers = KMeans(n_clusters=self.nfish).fit(points).cluster_centers_.tolist()
-            self.prior_centers = [
-                self.rescale_point(Point(*c), self.subsample_factor)
-                for c in centers
-            ]
+            check_str = f'Found {len(found_fish)} fish. Is this correct (y/n)?'
+            if input(check_str).strip().upper() != 'Y':
+                self.nfish = int(input('How many fish?').strip().replace('\'', '').replace('"', ''))
+        self.prior_centers = [find_result.center for find_result in found_fish]
+        while len(self.prior_centers) < self.nfish:
+            self.prior_centers.append(Point(0, 0))
+        while len(self.prior_centers) > self.nfish:
+            self.prior_centers.pop()
 
     def get_video_writers_and_loggers(
             self, vfile, output_dir, nframes, standardizers=None) -> WritersLoggers:
@@ -97,7 +106,7 @@ class MultiCropTracker(CropTracker):
         vfile = pathlib.Path(vfile).expanduser().resolve()
         output_vfiles = [
             output_dir / vfile.with_name(
-                f'{vfile.with_suffix("").name}_TF{i}'
+                f'{vfile.with_suffix("").name}_{self.assay}wpi_{self.group}{i}'
                 ).with_suffix(vfile.suffix).name
             for i in range(self.nfish)
         ]
@@ -165,7 +174,7 @@ class MultiCropTracker(CropTracker):
             self.prior_centers[fish_i] = centers[center_i]
             yield fish_i, CropResult(found_fish[center_i].crop, found_fish[center_i].corner)
 
-    def find_fish_in_frame(self, img: numpy.ndarray, standardizers: Standardizers) -> list:
+    def find_fish_in_frame(self, img: numpy.ndarray, standardizers: Standardizers) -> List[FindFishResult]:
         ''' Identifies all fish in frame and creates a FindFishResult for each one.
         Each FindFishResult contains a center, corner,
         and normalized crop with other fish masked out.
@@ -339,7 +348,7 @@ if __name__ == '__main__':
         lambda parser: parser.add_argument(
             '-n',
             '--num_fish',
-            help='Number of fish in the video.',
+            help='Number of fish in each video.',
             type=int,
             default=None),
     )
