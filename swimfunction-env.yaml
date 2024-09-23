@@ -3,8 +3,8 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python=3.11
-  - r-base=4.4
+  - python
+  - r-base
   - pytables
   - conda-forge::ffmpeg
   - pynndescent
@@ -15,7 +15,7 @@ dependencies:
   - pandas
   - pytest
   - pytest-timeout
-  - scikit-learn==1.0.2
+  - scikit-learn
   - imbalanced-learn
   - scipy
   - statsmodels
