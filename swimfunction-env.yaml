@@ -2,10 +2,9 @@ name: swimfunction
 channels:
   - conda-forge
   - defaults
-  - r
 dependencies:
-  - python=3.12
-  - r-base=4.4 
+  - python=3.11
+  - r-base=4.4
   - pytables
   - conda-forge::ffmpeg
   - pynndescent
@@ -18,12 +17,12 @@ dependencies:
   - pytest-timeout
   - scikit-learn==1.0.2
   - imbalanced-learn
-  - scipy==1.2.1
+  - scipy
   - statsmodels
   - seaborn
   - tqdm
   - tzlocal
-  - umap-learn==0.4.2
+  - umap-learn
   - pip
   - pdoc3
   - pyopengl
